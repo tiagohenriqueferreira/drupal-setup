@@ -37,7 +37,7 @@ The script automatically installs and configures:
 
 ## 💻 System Requirements
 
-- Ubuntu or Ubuntu-based distribution
+- Ubuntu 22.04 LTS or newer Ubuntu-based distribution
 - Root/sudo access
 - Internet connection
 - Minimum 4GB RAM recommended
@@ -47,7 +47,7 @@ The script automatically installs and configures:
 
 The script automatically configures PHP with the following limits:
 
-- memory_limit = 512M
+- memory_limit = 2048M
 - upload_max_filesize = 512M
 - post_max_size = 2048M
 - max_execution_time = 180
