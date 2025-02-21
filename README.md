@@ -19,7 +19,7 @@ sudo chmod +x install.sh
 The script automatically installs and configures:
 
 - Apache2
-- PHP 8.3 with various modules
+- PHP + Essential modules
 - Composer
 - PostgreSQL
 - MariaDB
