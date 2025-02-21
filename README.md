@@ -113,12 +113,15 @@ Project Link: [https://github.com/tiagohenriqueferreira/drupal-setup](https://gi
 
 This project is under the MIT License. See the `LICENSE` file for more information.
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![PHP Version](https://img.shields.io/badge/PHP-8.3-purple.svg)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04+-orange.svg)
+---
+
+![Ubuntu](https://img.shields.io/badge/Ubuntu-Latest-orange.svg)
+![Zsh](https://img.shields.io/badge/Zsh-Latest-yellow.svg)
+![Apache](https://img.shields.io/badge/Apache-Latest-red.svg)
+![PHP Version](https://img.shields.io/badge/PHP-Latest-purple.svg)
+![Composer](https://img.shields.io/badge/Composer-Latest-yellow.svg)
 ![MariaDB](https://img.shields.io/badge/MariaDB-Latest-blue.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)
 ![Node.js](https://img.shields.io/badge/Node.js-Latest-green.svg)
-![Apache](https://img.shields.io/badge/Apache-2.4-red.svg)
-![Composer](https://img.shields.io/badge/Composer-Latest-yellow.svg)
+![Npm](https://img.shields.io/badge/Npm-Latest-green.svg)
 ![SASS](https://img.shields.io/badge/SASS-Latest-pink.svg)
