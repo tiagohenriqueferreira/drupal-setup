@@ -109,10 +109,16 @@ Tiago Henrique Ferreira - [tiagohenriqueferreira@gmail.com](mailto:tiagohenrique
 
 Project Link: [https://github.com/tiagohenriqueferreira/drupal-setup](https://github.com/tiagohenriqueferreira/drupal-setup)
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![PHP Version](https://img.shields.io/badge/PHP-8.3-purple.svg)
-![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04+-orange.svg)
-
 ## 📝 License
 
 This project is under the MIT License. See the `LICENSE` file for more information.
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PHP Version](https://img.shields.io/badge/PHP-8.3-purple.svg)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04+-orange.svg)
+![MariaDB](https://img.shields.io/badge/MariaDB-Latest-blue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)
+![Node.js](https://img.shields.io/badge/Node.js-Latest-green.svg)
+![Apache](https://img.shields.io/badge/Apache-2.4-red.svg)
+![Composer](https://img.shields.io/badge/Composer-Latest-yellow.svg)
+![SASS](https://img.shields.io/badge/SASS-Latest-pink.svg)
