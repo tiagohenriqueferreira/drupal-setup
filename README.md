@@ -7,6 +7,7 @@ Drupal on Ubuntu is a project that facilitates quick configuration of Ubuntu-bas
 To install, clone the repository and run the configuration script:
 
 ```bash
+cd ~
 git clone https://github.com/tiagohenriqueferreira/drupal-setup.git
 cd drupal-setup
 sudo chmod +x install.sh
@@ -34,6 +35,24 @@ The script automatically installs and configures:
 - Development environment setup
 - Performance optimizations
 
+## 💻 System Requirements
+
+- Ubuntu or Ubuntu-based distribution
+- Root/sudo access
+- Internet connection
+- Minimum 4GB RAM recommended
+- 20GB disk space
+
+### 🐘 PHP Configuration
+
+The script automatically configures PHP with the following limits:
+
+- memory_limit = 512M
+- upload_max_filesize = 512M
+- post_max_size = 2048M
+- max_execution_time = 180
+- max_input_time = 180
+
 ## 🔧 Usage
 
 After installation, you can use the following aliases added to your `.bashrc`:
@@ -52,6 +71,28 @@ After installation, you can use the following aliases added to your `.bashrc`:
 - `phplog` - Tails the PHP error log in real time (`/var/log/php_errors.log`)
 - `versions` - Displays installed software versions (function defined in your `.bashrc`)
 
+## 🔍 Troubleshooting
+
+- If Apache doesn't start, check ports with: `sudo netstat -tuln | grep 80`
+- For permission issues: `sudo chown -R www-data:www-data /var/www/html`
+- System logs: `sudo journalctl -xe`
+
+## 🐚 Shell Configuration
+
+The script installs and configures:
+
+- Zsh as default shell
+- Oh My Zsh with af-magic theme
+- Plugins: git, ssh-agent, zsh-autosuggestions, zsh-syntax-highlighting, fzf
+
+## 🔒 Security
+
+Remember to:
+
+- Change default database passwords
+- Configure firewalls properly
+- Keep the system updated using provided aliases
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please:
@@ -66,7 +107,11 @@ Contributions are welcome! Please:
 
 Tiago Henrique Ferreira - [tiagohenriqueferreira@gmail.com](mailto:tiagohenriqueferreira@gmail.com)
 
-Project Link: [https://github.com/tiagohenriqueferreira/wsl-drupal](https://github.com/tiagohenriqueferreira/wsl-drupal)
+Project Link: [https://github.com/tiagohenriqueferreira/drupal-setup](https://github.com/tiagohenriqueferreira/drupal-setup)
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![PHP Version](https://img.shields.io/badge/PHP-8.3-purple.svg)
+![Ubuntu](https://img.shields.io/badge/Ubuntu-20.04+-orange.svg)
 
 ## 📝 License
 
