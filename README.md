@@ -43,7 +43,7 @@ The script automatically installs and configures:
 - Minimum 4GB RAM recommended
 - 20GB disk space
 
-### 🐘 PHP Configuration
+## 🐘 PHP Configuration
 
 The script automatically configures PHP with the following limits:
 
