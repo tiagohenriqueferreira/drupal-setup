@@ -109,7 +109,7 @@ sudo a2enmod rewrite
 # Adjust PHP settings
 echo -e "\n${GREEN}Adjusting PHP settings...${NC}"
 PHP_INI="/etc/php/8.3/apache2/php.ini"
-sudo sed -i 's/memory_limit = .*/memory_limit = 512M/' "$PHP_INI"
+sudo sed -i 's/memory_limit = .*/memory_limit = 2048M/' "$PHP_INI"
 sudo sed -i 's/upload_max_filesize = .*/upload_max_filesize = 512M/' "$PHP_INI"
 sudo sed -i 's/post_max_size = .*/post_max_size = 2048M/' "$PHP_INI"
 sudo sed -i 's/max_execution_time = .*/max_execution_time = 180/' "$PHP_INI"
