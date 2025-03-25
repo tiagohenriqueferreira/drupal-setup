@@ -169,6 +169,7 @@ mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
 git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --all
+git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
 
 # Configure Zsh
 echo -e "\n${GREEN}Configuring Zsh...${NC}"
@@ -184,6 +185,7 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "  zsh-autosuggestions"
   echo "  zsh-syntax-highlighting"
   echo "  fzf"
+  echo "  z"
   echo ")"
   echo ""
   echo "source \$ZSH/oh-my-zsh.sh"

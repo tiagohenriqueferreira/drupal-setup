@@ -83,7 +83,7 @@ The script installs and configures:
 
 - Zsh as default shell
 - Oh My Zsh with af-magic theme
-- Plugins: git, ssh-agent, zsh-autosuggestions, zsh-syntax-highlighting, fzf
+- Plugins: git, ssh-agent, zsh-autosuggestions, zsh-syntax-highlighting, fzf, z
 
 ## 🔒 Security
 
