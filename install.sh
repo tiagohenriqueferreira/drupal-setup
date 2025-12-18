@@ -55,6 +55,7 @@ PACKAGES=(
   php8.4-mysql
   mariadb-server
   php8.4
+  php8.4-dev
   php8.4-apcu
   php8.4-uploadprogress
   php-pear
@@ -165,7 +166,7 @@ done
 if command -v php &> /dev/null; then
   INSTALLED_PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2)
   echo -e "${GREEN}✓ PHP $INSTALLED_PHP_VERSION is installed${NC}"
-  
+
   # Check AVIF Support
   if php -i | grep -q "AVIF Support => enabled"; then
       echo -e "${GREEN}✓ PHP GD AVIF Support enabled${NC}"
