@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Stop script on error
+set -e
+
 # Drupal on WSL ASCII art
 echo -e "\n"
 echo -e "\n"
@@ -21,11 +24,12 @@ echo "░░░░╚════╝░╚═╝░░╚══╝░░░░�
 echo "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
 echo "░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░"
 echo -e "\n"
-echo -e "\n🚀 Drupal Development Environment for Ubuntu\n"
+echo -e "\n🚀 Drupal Development Environment for Ubuntu (PHP 8.4)\n"
 
 # Color definitions
 GREEN='\033[0;32m'
 RED='\033[0;31m'
+YELLOW='\033[1;33m'
 NC='\033[0m' # No color
 
 # Update and upgrade packages
@@ -72,6 +76,7 @@ PACKAGES=(
   php8.4-intl
   php8.4-imagick
   libavif-bin
+  libmagickcore-6.q16-6-extra # Important for AVIF support in ImageMagick
   nodejs
   npm
   build-essential
@@ -85,7 +90,7 @@ for PACKAGE in "${PACKAGES[@]}"; do
   sudo nala install -y "$PACKAGE"
 done
 
-# Set PHP 8.4 as default
+# Set PHP as default
 echo -e "\n${GREEN}Setting PHP 8.4 as default...${NC}"
 sudo update-alternatives --set php /usr/bin/php8.4
 sudo update-alternatives --set phar /usr/bin/phar8.4
@@ -106,6 +111,7 @@ sudo npm install -g sass
 
 # Install FastFetch
 echo -e "\n${GREEN}Installing FastFetch...${NC}"
+if [ -d "/tmp/fastfetch" ]; then rm -rf /tmp/fastfetch; fi
 git clone -q https://github.com/fastfetch-cli/fastfetch.git /tmp/fastfetch
 cmake -S /tmp/fastfetch -B /tmp/fastfetch/build -DCMAKE_BUILD_TYPE=Release >/dev/null
 cmake --build /tmp/fastfetch/build --parallel >/dev/null
@@ -126,11 +132,11 @@ sudo sed -i 's/max_input_time = .*/max_input_time = 180/' "$PHP_INI"
 
 # Configure APCu
 echo -e "\n${GREEN}Configuring APCu...${NC}"
-PHP_VERSION=$(php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;")
-APCU_INI="/etc/php/${PHP_VERSION}/mods-available/apcu.ini"
+DETECTED_PHP_VERSION=$(php -r "echo PHP_MAJOR_VERSION.'.'.PHP_MINOR_VERSION;")
+APCU_INI="/etc/php/${DETECTED_PHP_VERSION}/mods-available/apcu.ini"
 echo "extension=apcu.so" | sudo tee $APCU_INI > /dev/null
 echo "apc.shm_size=128M" | sudo tee -a $APCU_INI > /dev/null
-sudo phpenmod -v ${PHP_VERSION} apcu
+sudo phpenmod -v ${DETECTED_PHP_VERSION} apcu
 
 # Restart Apache
 sudo systemctl restart apache2
@@ -157,8 +163,15 @@ done
 
 # Check PHP installation
 if command -v php &> /dev/null; then
-  PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2)
-  echo -e "${GREEN}✓ PHP $PHP_VERSION is installed${NC}"
+  INSTALLED_PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2)
+  echo -e "${GREEN}✓ PHP $INSTALLED_PHP_VERSION is installed${NC}"
+  
+  # Check AVIF Support
+  if php -i | grep -q "AVIF Support => enabled"; then
+      echo -e "${GREEN}✓ PHP GD AVIF Support enabled${NC}"
+  else
+      echo -e "${YELLOW}⚠ PHP GD AVIF Support NOT found (check libavif)${NC}"
+  fi
 else
   echo -e "${RED}✗ PHP installation failed${NC}"
   ((FAILED++))
@@ -176,17 +189,36 @@ fi
 # Install Zsh and Oh My Zsh
 echo -e "\n${GREEN}Installing Zsh and Oh My Zsh...${NC}"
 sudo nala install -y zsh curl git
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Backup existing .zshrc
+if [ -f ~/.zshrc ]; then
+    echo -e "${YELLOW}Backing up existing .zshrc to .zshrc.backup...${NC}"
+    cp ~/.zshrc ~/.zshrc.backup
+fi
+
+# Install Oh My Zsh (unattended)
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
 
 # Make Zsh the default shell
 chsh -s "$(which zsh)"
 
 # Clone plugin repositories
 mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --all
-git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
+# Only clone if not exists to avoid errors on re-run
+if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+fi
+if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+fi
+if [ ! -d "$HOME/.fzf" ]; then
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install --all
+fi
+if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z" ]; then
+    git clone https://github.com/agkozak/zsh-z ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-z
+fi
 
 # Configure Zsh
 echo -e "\n${GREEN}Configuring Zsh...${NC}"
@@ -284,6 +316,13 @@ else
   echo -e "${RED}✗ Installation completed with $FAILED errors.${NC}"
 fi
 
+# Clean up
+sudo apt autoremove -y
+
 echo -e "\n${GREEN}Applying Zsh configuration automatically...${NC}"
-zsh
-source ~/.zshrc
+# Check if we are in zsh, if not, exec zsh
+if [ -n "$ZSH_VERSION" ]; then
+   source ~/.zshrc
+else
+   exec zsh
+fi
