@@ -48,7 +48,7 @@ sudo add-apt-repository ppa:ondrej/php -y
 echo -e "\n${GREEN}Updating with Nala...${NC}"
 sudo nala update && sudo nala list --upgradable && sudo nala upgrade -y
 
-# List of packages to install
+# List of packages to install (ACL included)
 PACKAGES=(
   apache2
   libapache2-mod-php8.4
@@ -77,12 +77,13 @@ PACKAGES=(
   php8.4-intl
   php8.4-imagick
   libavif-bin
-  libmagickcore-6.q16-6-extra # Important for AVIF support in ImageMagick
+  libmagickcore-6.q16-6-extra
   nodejs
   npm
   build-essential
   cmake
   pkg-config
+  acl
 )
 
 # Install individual packages using Nala
@@ -166,8 +167,6 @@ done
 if command -v php &> /dev/null; then
   INSTALLED_PHP_VERSION=$(php -v | head -n1 | cut -d' ' -f2)
   echo -e "${GREEN}✓ PHP $INSTALLED_PHP_VERSION is installed${NC}"
-
-  # Check AVIF Support
   if php -i | grep -q "AVIF Support => enabled"; then
       echo -e "${GREEN}✓ PHP GD AVIF Support enabled${NC}"
   else
@@ -207,7 +206,6 @@ chsh -s "$(which zsh)"
 
 # Clone plugin repositories
 mkdir -p ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins
-# Only clone if not exists to avoid errors on re-run
 if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 fi
@@ -261,26 +259,32 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "  fi"
   echo "}"
   echo ""
+  echo "# Dynamic Permission Fixer for Drupal (ACL based)"
+  echo "fix-perms() {"
+  echo "  local current_user=\$(whoami)"
+  echo "  local target_dir=\${1:-\"web/sites/default/files\"}"
+  echo ""
+  echo "  if [ ! -d \"\$target_dir\" ]; then"
+  echo "    echo \"Target directory '\$target_dir' not found. Checking current folder...\""
+  echo "    if [ -d \"sites/default/files\" ]; then target_dir=\"sites/default/files\"; fi"
+  echo "  fi"
+  echo ""
+  echo "  echo \"Applying ACL permissions for user '\$current_user' and group 'www-data' on '\$target_dir'...\""
+  echo "  sudo chown -R \$current_user:www-data \$target_dir"
+  echo "  sudo chmod -R 2775 \$target_dir"
+  echo "  sudo setfacl -R -m u:\$current_user:rwx,g:www-data:rwx \$target_dir"
+  echo "  sudo setfacl -R -d -m u:\$current_user:rwx,g:www-data:rwx \$target_dir"
+  echo "  echo \"Permissions fixed successfully.\""
+  echo "}"
+  echo ""
   echo "# Function to display versions of installed software"
   echo "function versions() {"
   echo "  apache_ver=\$(apache2ctl -v 2>/dev/null | grep \"Server version\" | awk '{print \$3}' | sed 's/Apache\\///')"
-  echo "  if [ -z \"\$apache_ver\" ]; then"
-  echo "    apache_ver=\$(httpd -v 2>/dev/null | grep \"Server version\" | awk '{print \$3}' | sed 's/Apache\\///')"
-  echo "  fi"
   echo "  [ -z \"\$apache_ver\" ] && apache_ver=\"Not found\""
-  echo ""
   echo "  php_ver=\$(php -v 2>/dev/null | head -n1 | awk '{print \$2}')"
   echo "  [ -z \"\$php_ver\" ] && php_ver=\"Not found\""
-  echo ""
   echo "  mariadb_ver=\$(mariadb --version 2>/dev/null | awk '{print \$5}' | sed 's/,//')"
-  echo "  [ -z \"\$mariadb_ver\" ] && mariadb_ver=\"Not found\""
-  echo ""
-  echo "  sass_ver=\$(sass --version 2>/dev/null | head -n1 | awk '{print \$1}')"
-  echo "  [ -z \"\$sass_ver\" ] && sass_ver=\"Not found\""
-  echo ""
   echo "  git_ver=\$(git --version 2>/dev/null | awk '{print \$3}')"
-  echo "  [ -z \"\$git_ver\" ] && git_ver=\"Not found\""
-  echo ""
   echo "  separator=\"--------------------------------------------\""
   echo "  printf \"\\n%s\\n\" \"\$separator\""
   echo "  printf \"%-12s | %-10s\\n\" \"Software\" \"Version\""
@@ -288,7 +292,6 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "  printf \"%-12s | %-10s\\n\" \"Apache\" \"\$apache_ver\""
   echo "  printf \"%-12s | %-10s\\n\" \"PHP\" \"\$php_ver\""
   echo "  printf \"%-12s | %-10s\\n\" \"MariaDB\" \"\$mariadb_ver\""
-  echo "  printf \"%-12s | %-10s\\n\" \"SASS\" \"\$sass_ver\""
   echo "  printf \"%-12s | %-10s\\n\" \"Git\" \"\$git_ver\""
   echo "  printf \"%s\\n\\n\" \"\$separator\""
   echo "}"
@@ -297,31 +300,25 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "alias sites=\"cd /var/www/\""
   echo "alias vhosts=\"cd /etc/apache2/sites-available/\""
   echo "alias update=\"sudo nala update && sudo nala list --upgradable && sudo nala upgrade -y\""
-  echo "alias upgrade=\"sudo nala install \$(nala list --upgradable | awk '/^[^├└]/ && NF {print \$1}')\""
   echo "alias rap=\"sudo service apache2 restart\""
   echo "alias rmdb=\"sudo service mariadb restart\""
-  echo "alias ss1=\"sass scss/style.scss css/style.css -w\""
-  echo "alias ss2=\"sass scss/ck5style.scss css/ck5style.css -w\""
-  echo "alias logs=\"tail -f /var/log/apache2/error.log\""
-  echo "alias phplog=\"tail -f /var/log/php_errors.log\""
+  echo "alias fp=\"fix-perms\""
   echo ""
 } > ~/.zshrc
 
-echo -e "\n${GREEN}Zsh installed and configured. Please restart or open a new terminal to use Zsh.${NC}"
+echo -e "\n${GREEN}Zsh installed and configured with ACL Permission Fixer (fp).${NC}"
 
 # Final summary
 echo -e "\n${GREEN}Installation summary:${NC}"
 if [ $FAILED -eq 0 ]; then
-  echo -e "${GREEN}✓ Installation completed successfully! All components were installed correctly.${NC}"
+  echo -e "${GREEN}✓ Installation completed successfully!${NC}"
 else
   echo -e "${RED}✗ Installation completed with $FAILED errors.${NC}"
 fi
 
-# Clean up
 sudo apt autoremove -y
 
-echo -e "\n${GREEN}Applying Zsh configuration automatically...${NC}"
-# Check if we are in zsh, if not, exec zsh
+echo -e "\n${GREEN}Applying Zsh configuration...${NC}"
 if [ -n "$ZSH_VERSION" ]; then
    source ~/.zshrc
 else
