@@ -77,12 +77,13 @@ PACKAGES=(
   php8.4-intl
   php8.4-imagick
   libavif-bin
-  libmagickcore-6.q16-6-extra # Important for AVIF support in ImageMagick
+  libmagickcore-6.q16-6-extra # Suporte a AVIF via ImageMagick para Drupal
   nodejs
   npm
   build-essential
   cmake
   pkg-config
+  acl
 )
 
 # Install individual packages using Nala
@@ -261,6 +262,22 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "  fi"
   echo "}"
   echo ""
+  echo "# Função para corrigir permissões de arquivos no Drupal (ACL dinâmico)"
+  echo "fix-perms() {"
+  echo "  local current_user=\$(whoami)"
+  echo "  local target_dir=\${1:-\"web/sites/default/files\"}"
+  echo ""
+  echo "  if [ ! -d \"\$target_dir\" ]; then"
+  echo "    if [ -d \"sites/default/files\" ]; then target_dir=\"sites/default/files\"; fi"
+  echo "  fi"
+  echo ""
+  echo "  echo \"Corrigindo permissões para \$current_user:www-data em \$target_dir...\""
+  echo "  sudo chown -R \$current_user:www-data \$target_dir"
+  echo "  sudo chmod -R 2775 \$target_dir"
+  echo "  sudo setfacl -R -m u:\$current_user:rwx,g:www-data:rwx \$target_dir"
+  echo "  sudo setfacl -R -d -m u:\$current_user:rwx,g:www-data:rwx \$target_dir"
+  echo "}"
+  echo ""
   echo "# Function to display versions of installed software"
   echo "function versions() {"
   echo "  apache_ver=\$(apache2ctl -v 2>/dev/null | grep \"Server version\" | awk '{print \$3}' | sed 's/Apache\\///')"
@@ -304,6 +321,7 @@ echo -e "\n${GREEN}Configuring Zsh...${NC}"
   echo "alias ss2=\"sass scss/ck5style.scss css/ck5style.css -w\""
   echo "alias logs=\"tail -f /var/log/apache2/error.log\""
   echo "alias phplog=\"tail -f /var/log/php_errors.log\""
+  echo "alias fp=\"fix-perms\""
   echo ""
 } > ~/.zshrc
 
