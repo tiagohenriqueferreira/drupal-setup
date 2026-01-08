@@ -77,7 +77,7 @@ PACKAGES=(
   php8.4-intl
   php8.4-imagick
   libavif-bin
-  libmagickcore-6.q16-6-extra # Suporte a AVIF via ImageMagick para Drupal
+  libmagickcore-6.q16-6-extra
   nodejs
   npm
   build-essential
